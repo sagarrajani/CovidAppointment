@@ -18,8 +18,10 @@
   "homepage": "https://github.com/sagarrajani/CovidAppointment#readme",
   "dependencies": {
     "fs": "0.0.1-security",
+    "google-distance": "^1.0.1",
     "lodash": "^4.17.21",
     "path": "^0.12.7",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "zipcode-city-distance": "^1.0.6"
   }
 }

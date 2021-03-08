@@ -1,6 +1,7 @@
 const fs = require('fs');
 const _ = require('lodash')
 const request = require('request')
+const zipCodeData = require('zipcode-city-distance');
 
 const start1 = async function(){
     const zipCodes = JSON.parse(await getPAZipCodes());
@@ -16,15 +17,35 @@ const start1 = async function(){
     fs.writeFileSync('./riteAids.json',JSON.stringify(riteAids))
 }
 
+const finddistance = async function(zip1, zip2){
+  return new Promise((resolve,reject) => {
+    var options = {
+        'method': 'GET',
+        'url': `http://www.zipcodeapi.com/rest/3eQEDC80cElYx8NW36kBaE0LIYLhMq4uJeq7fFGTmq0zU60QKaprBZ1Ds2RuHA6o/distance.json/${zip1}/${zip2}/mile`,
+      };
+    request(options, function (error, response) {
+        if (error) reject(error);
+        resolve({ distance : JSON.parse(response.body).distance, zip :  zip2});
+    });
+})
+
+}
+
 const start = async function(){
     var stores = JSON.parse(fs.readFileSync('./riteAidsuniqStores.json'))
+    stores = _.filter(stores, {state:'PA'})
     stores = _.reverse(stores)
+    // const inDistance = await Promise.all(_.map(stores, async (res) => {
+    //     return {distance : zipCodeData.zipCodeDistance('19130', res.zipcode,'M'), ...res};
+    // }))
+    // stores = _.filter(inDistance , (res) => {
+    //   return res.distance < 100
+    // })
     for(var i=0;i<stores.length;i++){
         stores.availability = JSON.parse(await checkAvailability(stores[i].storeNumber)).Data.slots
         if(_.includes(stores.availability,true)){
             console.log(stores[i].address+","+stores[i].zipcode)
         }
-        // await sleep(2000)
     }
     fs.writeFileSync('./riteAidsAvailability.json',JSON.stringify(stores))
 }
